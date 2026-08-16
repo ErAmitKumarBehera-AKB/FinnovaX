@@ -4,11 +4,12 @@ import apiClient from '../../api/client';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Activity, Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { Activity, Eye, EyeOff, ArrowLeft, ExternalLink, AlertCircle } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
 import { PasswordRequirementsPopup, PasswordMatchPopup } from "@/components/common/PasswordPopups";
 import ThemeToggle from '../../components/common/ThemeToggle';
@@ -46,6 +47,7 @@ const RegisterPage = () => {
   const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
+  const [showRenderAlert, setShowRenderAlert] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
@@ -71,6 +73,11 @@ const RegisterPage = () => {
   const phoneRegister = form.register("phoneNumber");
 
   const onSubmit = async (values) => {
+    setShowRenderAlert(true);
+    if (import.meta.env.PROD) {
+      return;
+    }
+    
     setIsLoading(true);
     try {
       const finalValues = { ...values };
@@ -130,6 +137,21 @@ const RegisterPage = () => {
           </CardHeader>
 
           <CardContent className="pb-8">
+            {showRenderAlert && (
+              <Alert variant="destructive" className="mb-6 bg-red-500/10 border-red-500/20 text-red-600 dark:text-red-400">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle className="font-semibold">Service Unavailable</AlertTitle>
+                  <AlertDescription className="mt-2 flex flex-col gap-3">
+                      <p>
+                          Free Render instances have been exhausted for this deployed version. Please self-host the application to continue using FinnovaX.
+                      </p>
+                      <a href="https://github.com/Swayam42/finnovaX" target="_blank" rel="noopener noreferrer" className="inline-flex w-fit items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-3 gap-2">
+                          <ExternalLink className="h-4 w-4" />
+                          View Source on GitHub
+                      </a>
+                  </AlertDescription>
+              </Alert>
+            )}
             <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
               {form.formState.errors.root && (
                 <div className="mb-2 p-3 rounded-md bg-red-50 text-red-600 text-sm font-medium text-center border border-red-100">
